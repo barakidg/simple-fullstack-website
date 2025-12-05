@@ -37,7 +37,7 @@ async function createTodo() {
     if (!todoContent) return
 
     try {
-        const response = await fetch('http://localhost:8080/api/todos', {
+        const response = await fetch('https://todo-backend-api-u5o1.onrender.com/api/todos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ async function createTodo() {
 
 async function getTodos() {
     try {
-        const response = await fetch('http://localhost:8080/api/todos')
+        const response = await fetch('https://todo-backend-api-u5o1.onrender.com/api/todos')
         const data = await response.json()
         if (response.ok && data.data) {
             displayTodos(data.data)
@@ -74,7 +74,7 @@ async function getTodos() {
 
 async function updateTodo(id) {
     try {
-        const response = await fetch(`http://localhost:8080/api/todo/${id}`, {
+        const response = await fetch(`https://todo-backend-api-u5o1.onrender.com/api/todo/${id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ async function updateTodo(id) {
 
 async function deleteTodo(id) {
     try {
-        const response = await fetch(`http://localhost:8080/api/todo/${id}`, {
+        const response = await fetch(`https://todo-backend-api-u5o1.onrender.com/api/todo/${id}`, {
             method: 'DELETE'
         })
 
