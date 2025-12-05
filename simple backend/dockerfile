@@ -1,0 +1,43 @@
+# ----------------------------------------------------
+# STAGE 1: BUILD (Install dependencies)
+# ----------------------------------------------------
+# Use a minimal Node.js image as the base
+FROM node:20-alpine AS build
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json first to leverage Docker layer caching.
+# This ensures npm install only runs if package.json changes.
+COPY package.json .
+
+# Install dependencies
+RUN npm install --omit=dev
+
+# ----------------------------------------------------
+# STAGE 2: PRODUCTION (The final, small runtime image)
+# ----------------------------------------------------
+FROM node:20-alpine AS production
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only the necessary installed node_modules from the 'build' stage
+COPY --from=build /app/node_modules ./node_modules
+
+# Copy the application source code (app.js, controllers, models, routes)
+# We copy everything needed to run the app.
+# Note: Sensitive files like .env are *not* copied.
+COPY . .
+
+# EXPOSE the port the app runs on (from your .env/app.js)
+# This is documentation; it doesn't publish the port.
+EXPOSE 3000
+
+# Set a non-root user for better security (standard best practice)
+RUN chown -R node:node /app
+USER node
+
+# Command to run the application
+# This executes the "start" script defined in your package.json
+CMD ["npm", "start"]
