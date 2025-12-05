@@ -1,0 +1,46 @@
+services:
+  # 1. PostgreSQL Database Service (REPLACED MYSQL)
+  db:
+    image: postgres:16-alpine # <-- NEW: Using a lean PostgreSQL image
+    container_name: todo_postgres_db # <-- NEW: Changed container name
+    restart: always
+    environment:
+      # These variables are for the PostgreSQL image
+      POSTGRES_USER: root      # <-- NEW: Postgres user variable
+      POSTGRES_PASSWORD: 1224  # <-- NEW: Postgres password variable
+      POSTGRES_DB: simple      # <-- NEW: Postgres database variable
+    volumes:
+      # Changed volume path for Postgres data persistence
+      - db_data:/var/lib/postgresql/data 
+
+  # 2. Backend Service (Node.js API) - NO CHANGE NEEDED HERE
+  backend:
+    build:
+      context: ./simple backend
+    container_name: todo_node_api
+    ports:
+      - "8080:3000"
+    environment:
+      PORT: 3000
+      DB_NAME: simple
+      DB_USER: root
+      DB_PASSWORD: 1224
+      DB_HOST: db # Still links to the 'db' service name
+    depends_on:
+      - db
+    restart: always
+    
+  # 3. Frontend Service (Serves your static HTML/CSS/JS files via Nginx) - NO CHANGE
+  frontend:
+    image: nginx:alpine
+    container_name: todo_static_frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./simple frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+
+# Define the volume for persistent database storage
+volumes:
+  db_data:
